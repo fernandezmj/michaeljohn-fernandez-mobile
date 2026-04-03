@@ -10,16 +10,15 @@ const app = express();
 // Safety middleware
 app.use(helmet());
 app.use(cors());
-app.use(express.json());
 
-// Rate limiting — 100 requests per 15 minutes per IP
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 100, // Note: express-rate-limit v7+ renamed `max` to `limit`
-    message: { success: false, error: 'Too many requests, please try again later.' },
-  })
-);
+// Rate limiting — 100 requests per 15 minutes per IP (scoped to /api only)
+app.use('/api', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  message: { success: false, error: 'Too many requests, please try again later.' },
+}));
+
+app.use(express.json());
 
 // Routes
 app.use('/api/ethereum', ethereumRouter);

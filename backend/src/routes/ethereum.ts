@@ -11,7 +11,8 @@ ethereumRouter.get(
   validateAddress,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await ethService.getAccountDetails(req.params.address as string);
+      const address = req.params.address as string;
+      const data = await ethService.getAccountDetails(address);
       res.json({ success: true, data });
     } catch (err) {
       next(err);
