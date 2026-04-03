@@ -2,8 +2,8 @@
 
 A mobile Ethereum wallet interface for the Ardata Full Stack Developer technical exam. Connect your wallet, view your live Sepolia testnet balance, and browse transaction history — all backed by real blockchain data.
 
-> **Tier completed:** Tier 1 — Frontend (Mobile)
-> Tiers 2, 3, and 4 are not included in this submission.
+> **Tiers completed:** Tier 1 — Frontend (Mobile) · Tier 2 — Backend (REST API)
+> Tiers 3 and 4 are not included in this submission.
 
 ---
 
@@ -18,7 +18,8 @@ This app allows a user to:
 - Copy their wallet address to clipboard
 - See real-time block number and gas price
 
-Built with **React Native (Expo SDK 53)**, **ethers.js v6**, and **TypeScript**.
+**Frontend** built with React Native (Expo SDK 53), ethers.js v6, and TypeScript.
+**Backend** built with Express.js, ethers.js v6, and TypeScript — exposes a REST API for gas price, block number, and account balance via Alchemy Sepolia RPC.
 
 ---
 
@@ -99,6 +100,75 @@ npx expo run:ios
 
 ---
 
+## Backend Setup & Run
+
+### 1. Install dependencies
+
+```bash
+cd backend
+npm install
+```
+
+### 2. Configure environment variables
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and fill in your API key:
+
+```env
+ALCHEMY_API_KEY=your_alchemy_api_key
+PORT=3001
+NODE_ENV=development
+```
+
+### 3. Run in development mode
+
+```bash
+npm run dev
+```
+
+Server starts at `http://localhost:3001`.
+
+### 4. API endpoints
+
+| Endpoint | Description |
+|---|---|
+| `GET /health` | Health check — `{"status":"ok"}` |
+| `GET /api/ethereum/:address` | Gas price, block number, and balance for an Ethereum address |
+
+**Example:**
+```bash
+curl http://localhost:3001/api/ethereum/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "balance": "0.0",
+    "balanceWei": "0",
+    "maxFeePerGas": "1.5",
+    "maxFeePerGasWei": "1500000000",
+    "maxPriorityFeePerGas": "1.0",
+    "maxPriorityFeePerGasWei": "1000000000",
+    "blockNumber": 7654321,
+    "network": "sepolia",
+    "timestamp": "2026-04-03T00:00:00.000Z"
+  }
+}
+```
+
+### 5. Run tests
+
+```bash
+npm test
+```
+
+---
+
 ## Build APK (Android)
 
 ```bash
@@ -117,7 +187,7 @@ org.gradle.jvmargs=-Xmx4096m
 
 ## Docker Compose
 
-Not applicable for this tier. This is a React Native mobile app — it runs natively on Android/iOS devices, not in a containerized environment.
+Not included in this submission (Tier 4). The frontend is a React Native app that runs natively on Android/iOS devices. The backend can be run locally via `npm run dev`.
 
 ---
 
@@ -141,6 +211,15 @@ ethers.js v6 has a cleaner API, better TypeScript support, smaller bundle size, 
 ---
 
 ## Project Structure
+
+```
+michaeljohn-fernandez-mobile/
+├── frontend/              # Tier 1 — React Native (Expo) mobile app
+├── backend/               # Tier 2 — Express.js REST API
+└── docs/                  # Planning documents and design specs
+```
+
+### Frontend
 
 ```
 frontend/
@@ -171,6 +250,29 @@ frontend/
 ├── babel.config.js            # unstable_transformImportMeta for ethers.js
 ├── .env.example               # Environment variable template
 └── package.json
+```
+
+### Backend
+
+```
+backend/
+├── src/
+│   ├── index.ts               # Entry point — dotenv + app.listen
+│   ├── app.ts                 # Express app — middleware + routes (no listen)
+│   ├── provider.ts            # ethers.js JsonRpcProvider singleton (staticNetwork)
+│   ├── routes/
+│   │   └── ethereum.ts        # GET /api/ethereum/:address
+│   ├── services/
+│   │   └── ethereum.ts        # EthereumService — getAccountDetails()
+│   ├── middleware/
+│   │   ├── validation.ts      # Ethereum address validation (ethers.isAddress)
+│   │   └── errorHandler.ts    # Centralized error handler (503 for network errors)
+│   ├── types/
+│   │   └── index.ts           # AccountDetails interface
+│   └── __tests__/             # Jest + supertest test suites
+├── .env.example
+├── package.json
+└── tsconfig.json
 ```
 
 ---
