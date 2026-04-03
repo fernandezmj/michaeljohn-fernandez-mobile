@@ -11,6 +11,9 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 
+// Health check — registered before rate limiter so it is never blocked
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+
 // Rate limiting — 100 requests per 15 minutes per IP (scoped to /api only)
 app.use('/api', rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -22,7 +25,6 @@ app.use(express.json());
 
 // Routes
 app.use('/api/ethereum', ethereumRouter);
-app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 // Error handler MUST be last
 app.use(errorHandler);
