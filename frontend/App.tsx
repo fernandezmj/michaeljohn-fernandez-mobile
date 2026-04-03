@@ -2,7 +2,8 @@ import { appKit } from './src/config/appkit';
 import { AppKitProvider, AppKit } from '@reown/appkit-react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeScreen } from './src/screens/HomeScreen';
-import { useFonts } from 'expo-font';
+import * as Font from 'expo-font';
+import { useState, useEffect } from 'react';
 import {
   Orbitron_400Regular,
   Orbitron_500Medium,
@@ -19,17 +20,21 @@ import {
 import { View, ActivityIndicator } from 'react-native';
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
-    Orbitron_400Regular,
-    Orbitron_500Medium,
-    Orbitron_600SemiBold,
-    Orbitron_700Bold,
-    Exo2_300Light,
-    Exo2_400Regular,
-    Exo2_500Medium,
-    Exo2_600SemiBold,
-    Exo2_700Bold,
-  });
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    Font.loadAsync({
+      Orbitron_400Regular,
+      Orbitron_500Medium,
+      Orbitron_600SemiBold,
+      Orbitron_700Bold,
+      Exo2_300Light,
+      Exo2_400Regular,
+      Exo2_500Medium,
+      Exo2_600SemiBold,
+      Exo2_700Bold,
+    }).then(() => setFontsLoaded(true));
+  }, []);
 
   if (!fontsLoaded) {
     return (
